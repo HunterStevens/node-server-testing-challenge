@@ -10,6 +10,6 @@ server.get("/", (req, res) => {
   res.status(200).json({ api: "Is loaded and ready to go!" });
 });
 
-server.use('/books', bookRouter);
+server.use('/api/books', bookRouter);
 
 module.exports = server;
