@@ -1,7 +1,10 @@
 const supertest = require('supertest');
 const server = require('../server');
-const bookRouter = require('../books/booksRouter');
 const db = require('../data/dbConfig');
+
+afterAll(async ()=>{
+    await db('books').truncate();
+})
 
 describe('server', () =>{
     describe('GET /', ()=>{
@@ -15,15 +18,15 @@ describe('server', () =>{
 
 describe('booksRouter',()=>{
     describe('POST /api/books', ()=>{
-        test('should return a whole new book when filled in correctly', ()=>{
+        test('should return a whole new book when filled in correctly', () => {
             const insert = {
                 title:'test keeping',
                 author:'some bald guy'
             }
-            supertest(bookRouter).post('/').send(insert).then(res =>{
-                expect(res.body.title).toBeDefined();
-                expect(res.body.fake).toBeDefined();
-                expect(res.body.id).toBeDefined();
+            supertest(server).post('/api/books').send(insert).then(res =>{
+                expect(res.req.data.title).toEqual('test keeping');
+                expect(res.req.data.author).toEqual('some bald guy');
+                expect(res.req.data.author).toBeDefined();
             })
         })
         test('should return an error if certain credentials are not put in', ()=>{
@@ -33,11 +36,18 @@ describe('booksRouter',()=>{
             const insertTwo = {
                 author:'no title'
             }
-            supertest(bookRouter).post('/').send(insertOne).then(res =>{
+            supertest(server).post('/api/books').send(insertOne).then(res =>{
                 expect(res.body).toStrictEqual({error:'credentials arent filled in to make a new book'})
             })
-            supertest(bookRouter).post('/').send(insertTwo).then(res =>{
-                expect(res.body.author).toBeDefined();
+            supertest(server).post('/api/books').send(insertTwo).then(res =>{
+                expect(res.body).toStrictEqual({error:'credentials arent filled in to make a new book'})
+            })
+        })
+    })
+    describe('DELETE /api/books/:id', ()=>{
+        test('Should successfully delete book based on valid id',()=>{
+            supertest(server).delete('/api/books/1').then(res =>{
+                expect(res).toEqual('deleted');
             })
         })
     })
