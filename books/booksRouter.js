@@ -11,7 +11,7 @@ router.post('/', (req,res)=>{
     const {title, author} = req.body;
     if(title && author){
         books.addBook(req.body).then(newBook =>{
-            res.status(200).json(newBook);
+            res.status(200).json({data:newBook});
         }).catch(err =>{
             res.status(500).json(err.message);
         })
